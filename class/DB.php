@@ -13,16 +13,16 @@ exit('invalid request');
 class DB 
 {
 	//数据库地址
-	private $dbHost = 'localhost';
+	private $dbHost = 'localhost:8889';
 	
 	//MySql数据库用户名
 	private $dbUser = 'root';
 	
 	 //MySql数据库密码 
-	private $dbPwd = '';
+	private $dbPwd = 'root';
 	
 	//MySql数据库名称
-	private $dbName = 'xixicai';	
+	private $dbName = 'ssc';
 	
 	private function connect ()
 	{

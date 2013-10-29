@@ -29,8 +29,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['op']) && $_POST['op']=
 	if (!isset($_POST['s_F_Name']) || !Matchs::isStringChi($_POST['s_F_Name'])) exit(back('您輸入的名稱錯誤！'));
 	if (!isset($_POST['s_Pwd']) || !Matchs::isString($_POST['s_Pwd'], 8, 20)) exit(back('請輸入密碼！'));
 	if (!isset($_POST['s_money']) || !Matchs::isNumber($_POST['s_money'])) exit(back('信用額錯誤！'));
-	if (!isset($_POST['Size_KY']) || !Matchs::isNumber($_POST['Size_KY'])) exit(back('占成錯誤！'));
-	if (!isset($_POST['user_lock']) || !Matchs::isNumber($_POST['user_lock'])) exit(back('限額錯誤！'));
+	if (!isset($_POST['s_size_ky']) || !Matchs::isNumber($_POST['s_size_ky'])) exit(back('占成錯誤！'));
+	//if (!isset($_POST['user_lock']) || !Matchs::isNumber($_POST['user_lock'])) exit(back('限額錯誤！'));
 	//zerc20120805
 	if (!isset($_POST['s']) || !Matchs::isString($_POST['s'])) exit(back('請選擇上級！'));
 	$sid = $_GET['sid'];
@@ -39,7 +39,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['op']) && $_POST['op']=
 	$s_F_Name = $_POST['s_F_Name'];
 	$s_Pwd = $_POST['s_Pwd'];
 	$s_money = $_POST['s_money'];
-	$s_Size_KY = $_POST['Size_KY'];
+	$s_Size_KY = $_POST['s_size_ky'];
 	$s_pan = $_POST['s_pan'];
 	$s_select = $_POST['select'];
 	
@@ -102,7 +102,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['op']) && $_POST['op']=
 	$userList['g_panlu'] = strtoupper($s_panl);
 	
 	
-	$userList['g_xianer'] = $_POST['user_lock'];
+	//$userList['g_xianer'] = $_POST['user_lock'];
 	$userList['g_out'] = 0;
 	$userList['g_look'] = 1;
 	$userList['g_ip'] = UserModel::GetIP();
@@ -114,7 +114,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['op']) && $_POST['op']=
 		exit;
 	}
 	$userModel->AddMumberUser($userList);
-	alert_href('新增成功，請設置退水項！', 'Member_MR.php?cid='.$_GET['cid'].'&uid='.$s_Name);
+    $cid = $_GET['cid'];
+    update_MR($cid);
+	alert_href('新增成功', 'Actfor.php?cid='.$_GET['cid']);
 	exit;
 }
 else if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['sid']) && isset($_GET['cid']))
@@ -149,6 +151,7 @@ else if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['sid']) && isset($_G
 		} else if ($Users[0]['g_login_id'] == 78) {
 			$select =$o1.'<input type="radio" onclick="Gos(this);" name="tse" value="2">總代理';
 		}
+
 	}
 }
 
@@ -166,6 +169,79 @@ function getSelect ($Rank, $userModel, $p=FALSE)
 	return $option1.$select.$option2;
 }
 
+//插入项目退水等信息
+function update_MR($cid)
+{
+    echo "enter update_MR";
+    global $_POST;
+    $uModel = new UserModel();
+    $name = $_POST['s_Name'];
+    if ($cid == 5) {
+        $usersModel = $uModel->GetMemberModel($name);
+    } else {
+        $usersModel = $uModel->GetUserModel(null, $name);
+    }
+    if ($usersModel) {
+        $Lname = mb_substr($usersModel[0]['g_nid'], 0, mb_strlen($usersModel[0]['g_nid']) - 32);
+        $Lname = $uModel->GetUserName_Like($Lname); //返回查询出来的用户信息
+        $db = new DB();
+        if ($usersModel[0]['g_login_id'] == 56) { //如果被操作用户为分公司，则将类赋给$Lname，否则宣告权限不足
+            $Lname = $usersModel;
+        } else {
+            if ($Lname[0]['g_lock'] != 1) {
+                exit(back('更變權限不足！'));
+            }
+        }
+        $sList = array(0 => 0, 1 => 0, 2 => 0);
+        $LdetList = $db->query("SELECT `g_id`, `g_name`, `g_type`, `g_a_limit`, g_b_limit, g_c_limit,  `g_d_limit`, `g_e_limit`, `g_game_id`
+		FROM `g_send_back` WHERE g_name = '{$Lname[0]['g_name']}' ORDER BY g_id DESC", 0); //获取退水表
+        for ($i = 0; $i < count($LdetList); $i++) {
+            if (!isset($_POST['a' . ($i)])) {
+                continue;
+            }
+            $aList = 100 - $_POST['a' . ($i)]; //A盘退水
+            $bList = 100 - $_POST['b' . ($i)]; //B盘退水
+            $cList = 100 - $_POST['c' . ($i)]; //C盘退水
+            $dList = $_POST['d' . ($i)]; //单注
+            $eList = $_POST['e' . ($i)]; //单期
+
+            if (!Matchs::isFloating($aList) || !Matchs::isFloating($bList) || !Matchs::isFloating($cList) || !Matchs::isFloating($dList) || !Matchs::isFloating($eList))
+                exit(back('輸入的數值錯誤！' . $i));
+            if ($usersModel[0]['g_login_id'] != 56) {
+                if ($aList < $LdetList[$i][3] || $aList > 100) exit(back(' [ ' . $LdetList[$i][2] . '盤 ] 退水設置：' . $LdetList[$i][3] . '---' . (100)));
+                if ($bList < $LdetList[$i][4] || $aList > 100) exit(back(' [ ' . $LdetList[$i][2] . '盤 ] 退水設置：' . $LdetList[$i][4] . '---' . (100)));
+                if ($cList < $LdetList[$i][5] || $aList > 100) exit(back(' [ ' . $LdetList[$i][2] . '盤 ] 退水設置：' . $LdetList[$i][5] . '---' . (100)));
+                if ($dList > $LdetList[$i][6] || $dList < 0) exit(back($LdetList[$i][2] . ' 最高單註限額設置為：' . $LdetList[$i][6] . '---' . (0)));
+                if ($eList > $LdetList[$i][7] || $eList < 0) exit(back($LdetList[$i][2] . ' 最高單期限額設置為：' . $LdetList[$i][7] . '---' . (0)));
+            }
+            if ($aList > $LdetList[$i][3]) {
+                //取A盘
+                $LdetList[$i][3] = $aList;
+                updateTuiShui($db, $LdetList[$i], $usersModel, 'a', $aList);
+            }
+            if ($bList > $LdetList[$i][4]) {
+                //取B盘
+                $LdetList[$i][4] = $bList;
+                updateTuiShui($db, $LdetList[$i], $usersModel, 'b', $bList);
+            }
+            if ($cList > $LdetList[$i][5]) {
+                //取C盘
+                $LdetList[$i][5] = $cList;
+                updateTuiShui($db, $LdetList[$i], $usersModel, 'c', $cList);
+            }
+
+            //修改退水
+            $sql = "UPDATE `g_send_back` SET `g_a_limit` = '{$aList}', `g_b_limit` = '{$bList}', `g_c_limit` = '{$cList}', `g_d_limit` = '{$dList}', `g_e_limit` = '{$eList}'
+			WHERE `g_name` = '{$usersModel[0]['g_name']}' AND g_type = '{$LdetList[$i][2]}' AND g_game_id = '{$LdetList[$i][8]}' LIMIT 1";
+            $db->query($sql, 2);
+        }
+        //print_r($LdetList);
+        //exit;
+        //exit(alert_href('更變成功', 'Actfor.php?cid='.$_GET['cid']));
+    } else {
+        exit(alert_href('用戶不存在', 'Actfor.php?cid=' . $_GET['cid']));
+    }
+}
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" <?php echo $oncontextmenu?>>

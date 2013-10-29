@@ -16,7 +16,7 @@ global $ConfigModel,$sHome,$sPort;
 
 $home = $_SERVER["SERVER_NAME"];
 $port = $_SERVER["SERVER_PORT"];
-$lock = false;
+$lock = true;
 for ($i=0; $i<count($sHome); $i++)
 {
 	if ($home == $sHome[$i] && $port == $sPort[$i])
@@ -41,12 +41,11 @@ if ($lock == false){
 	exit;
 }
 
-if ($_COOKIE['manage_user'] == null || $_COOKIE['manage_uid'] == null ||  !isset($_SESSION['loginId']) || !isset($_SESSION['sName'])) 
+if ($_COOKIE['manage_user'] == null || $_COOKIE['manage_uid'] == null ||  !isset($_SESSION['loginId']) || !isset($_SESSION['sName']))
 {
 	href("quit.php");
 	exit;
 }
-
 $name = base64_decode($_COOKIE['manage_user']);
 $uid = base64_decode($_COOKIE['manage_uid']);
 $_SESSION['loginId'] = $_SESSION['loginId'];
@@ -70,34 +69,33 @@ if (isset($_SESSION['son']))
 			$sql = "UPDATE `g_relation_user` SET `g_out` =1, `g_count_time`=now() WHERE `g_s_name`='{$_SESSION['sName']}' LIMIT 1 ";
 			$db->query($sql, 2);
 		}
-} 
-else 
+}
+else
 {
 	$Users = $userModel->GetUserModel($_SESSION['loginId'], $_SESSION['sName']);
-	if (!$Users) 
+	if (!$Users)
 	href("quit.php");
 	if ($Users[0]['g_login_id'] != 89) {
 		if ($ConfigModel['g_web_lock'] != 1) 
 			exit(back($ConfigModel['g_web_text']));
 		if (!$db->query("SELECT `g_name` FROM `g_rank` WHERE g_uid = '{$uid}' LIMIT 1 ", 0)) 
-			exit(href('quit.php'));
+		//	exit(href('quit.php'));
 		if ($Users[0]['g_lock'] == 3)
 			exit(alert_href($UserLook, 'quit.php')); //帳號已被停用
 		if ($Users[0]['g_out'] == 0) {
-			href("quit.php");
-			exit;
+		//	href("quit.php");
+		//	exit;
 		} else {
 			$sql = "UPDATE `g_rank` SET `g_out` =1, `g_count_time`=now() WHERE `g_name`='{$_SESSION['sName']}' LIMIT 1 ";
 			$db->query($sql, 2);
 		}
 	} else {
-		if (!$db->query("SELECT g_name FROM g_manage WHERE g_uid = '{$uid}' LIMIT 1 ", 0)){
-			exit(href('quit.php'));
-		}
-	}
+        if (!$db->query("SELECT g_name FROM g_manage WHERE g_uid = '{$uid}' LIMIT 1 ", 0)){
+        //    exit(href('quit.php'));
+        }
+    }
 }
-	
-$Users[0]['g_Lnid'] = $userModel->GetLoginIdByString ($_SESSION['loginId']);
-$LoginId =$Users[0]['g_login_id'];
 
+        $Users[0]['g_Lnid'] = $userModel->GetLoginIdByString ($_SESSION['loginId']);
+        $LoginId =$Users[0]['g_login_id'];
 ?>

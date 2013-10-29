@@ -1,0 +1,16 @@
+（修改：url.ini）
+[TimeDim]
+time=1000
+[URLlist]
+text=http://127.0.0.1/jieshui.php
+
+
+更改为：
+
+[TimeDim]
+time=1000
+[URLlist]
+text=http://你的网站前台地址/jieshui.php
+
+
+设置好后（注意：前提要在自己的网站后台的开盘设置，把期数加载到当前的期数），运行“SSCPKStation.exe”，即可自动采集

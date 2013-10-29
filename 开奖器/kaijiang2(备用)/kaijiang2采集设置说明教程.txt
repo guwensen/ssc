@@ -1,0 +1,10 @@
+（修改：Lottery.exe.config）
+找到这段：<add key="postURL" value="http://127.0.0.1/jieshui.php,http://127.0.0.2/jieshui.php"/>
+
+更改为：<add key="postURL" value="http://你的网站前台地址/jieshui.php,http://另外一个网站的开奖地址/jieshui.php" />
+
+注意：上面是两个网站的演示设置，多个网站需要开奖请在尾部一直增加即可！
+这是一个网站的开奖链接：http://127.0.0.1/jieshui.php
+这是另外一个的开奖链接：http://127.0.0.2/jieshui.php
+
+设置好后（注意：前提要在自己的网站后台的开盘设置，把期数加载到当前的期数），运行“Lottery.exe”，点“开始”即可自动采集

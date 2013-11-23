@@ -6,10 +6,11 @@ function GoSearch (str, $this){
 	if (str == "Estate") {
 		href += "&Estate="+$this.value;
 	} else {
-		var FindType = $("#FindType").val();
-		var searchName = $("#searchName").val();
+		//var FindType = $("#FindType").val();
+        var FindType = 'g_name';//当前默认为按账号查询，如果要按照名称查询则该值改为g_f_name
+		var searchName = $("#se_con").val();
 		if (searchName == "") {
-			alert("請輸入查詢條件！");
+			alert("请输入查询条件！");
 			return;
 		} else {
 			href +="&searchName="+searchName+"&FindType="+FindType;

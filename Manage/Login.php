@@ -45,6 +45,7 @@ if ($_SERVER["REQUEST_METHOD"] == 'POST')
 				if ($User[0]['g_lock'] == 3) 
 					exit(back($UserLook));
 			}
+
 			$uniqid = md5(uniqid(time(),TRUE));
 			$UserModel->UpdateGuid ($User[0]['g_login_id'], $User[0]['g_name'], $uniqid);
 			$_SESSION['loginId'] = $User[0]['g_login_id'];
@@ -60,9 +61,15 @@ if ($_SERVER["REQUEST_METHOD"] == 'POST')
 		$sql = "INSERT INTO g_login_log (g_name, g_ip, g_ip_location, g_date) VALUES ('{$loginName}','{$loginIp}','{$ip_s}',now())";
 		$db=new DB();
 		$db->query($sql, 2);
-		include_once ROOT_PATH.'Manage/main.php';
-		exit;
-	} 
+      /*  if ($User[0]['g_login_id'] == 89) {
+            include_once ROOT_PATH.'Manage_old/main.php';
+        } else {
+            include_once ROOT_PATH.'Manage/main.php';
+        }*/
+        include_once ROOT_PATH.'Manage/main.php';
+
+        exit;
+	}
 	else 
 	{
 		back($CodeError);

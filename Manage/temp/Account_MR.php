@@ -20,9 +20,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 	if ($usersModel)
 	{
 		$Lname = mb_substr($usersModel[0]['g_nid'], 0, mb_strlen($usersModel[0]['g_nid'])-32);
-		$Lname = $userModel->GetUserName_Like($Lname);
+		$Lname = $userModel->GetUserName_Like($Lname);//返回查询出来的用户信息
 		$db = new DB();
-		if ($usersModel[0]['g_login_id'] == 56){
+		if ($usersModel[0]['g_login_id'] == 56){//如果被操作用户为分公司，则将类赋给$Lname，否则宣告权限不足
 			$Lname=$usersModel;
 		} else {
 			if ($Lname[0]['g_lock'] != 1) {
@@ -31,13 +31,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 		}
 		$sList = array(0=>0, 1=>0, 2=>0);
 		$LdetList = $db->query("SELECT `g_id`, `g_name`, `g_type`, `g_a_limit`, g_b_limit, g_c_limit,  `g_d_limit`, `g_e_limit`, `g_game_id` 
-		FROM `g_send_back` WHERE g_name = '{$Lname[0]['g_name']}' ORDER BY g_id DESC", 0); 
+		FROM `g_send_back` WHERE g_name = '{$Lname[0]['g_name']}' ORDER BY g_id DESC", 0); //获取退水表
 		for ($i=0; $i<count($LdetList); $i++) {
-			$aList = $_POST['a'.($i+1)];
-			$bList = $_POST['b'.($i+1)];
-			$cList = $_POST['c'.($i+1)];
-			$dList = $_POST['d'.($i+1)];
-			$eList = $_POST['e'.($i+1)];
+			$aList = $_POST['a'.($i+1)];//A盘退水
+			$bList = $_POST['b'.($i+1)];//B盘退水
+			$cList = $_POST['c'.($i+1)];//C盘退水
+			$dList = $_POST['d'.($i+1)];//单注
+			$eList = $_POST['e'.($i+1)];//单期
 			if (!Matchs::isFloating($aList) || !Matchs::isFloating($bList) || !Matchs::isFloating($cList) || !Matchs::isFloating($dList) || !Matchs::isFloating($eList)) 
 				exit(back('輸入的數值錯誤！'.$i));
 			if ($usersModel[0]['g_login_id'] != 56){

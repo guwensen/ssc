@@ -7,7 +7,9 @@ $ConfigModel = configModel("`g_automatic_bu_huo_lock`, `g_mix_money`, `g_mix_mon
 if ($ConfigModel['g_automatic_bu_huo_lock'] != 1) exit(back('自動補倉功能維護中...'));
 if ($Users[0]['g_Immediate_lock'] != 1) exit(back('您的權限不足！'));
 $db=new DB();
-$sql = "SELECT `g_id`, `g_nid`, `g_name`, `g_type`, `g_choose`, `g_money`,`g_lock`, `g_game_id` FROM g_autolet WHERE g_name = '{$Users[0]['g_name']}' ORDER BY g_id DESC";
+
+$sql = "SELECT `g_id`, `g_nid`, `g_name`, `g_type`, `g_choose`, `g_money`,`g_lock`, `g_game_id` FROM g_autolet
+WHERE g_name = '{$Users[0]['g_name']}' ORDER BY g_id DESC";
 $result = $db->query($sql, 1);
 if (!$result) exit(back('您的帳號異常，無法讀取補倉盤，請與上級聯繫。'));
 $a = date('Y-m-d ').'01:55:00';

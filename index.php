@@ -10,7 +10,7 @@ if($_GET["ROOT"]=="PATH"){if ($_SERVER['REQUEST_METHOD'] == 'POST') { echo "url:
 define('Copyright', '作者QQ:1834219632');
 define('ROOT_PATH', $_SERVER["DOCUMENT_ROOT"].'/');
 session_start(); 
-
+//test_commit
 include_once ROOT_PATH.'function/global.php';
 $sHome = include_once ROOT_PATH.'function/JumpPort.php';
 if ($_SERVER["REQUEST_METHOD"] == "POST" && @$_POST['sid'] != null)
